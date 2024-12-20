@@ -16,12 +16,21 @@ export const AppContainer = styled.div`
   height: 100vh;
 `;
 
+const CongratulationMessage = styled.div`
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 4px;
+`;
+
 export interface AppState {
   todos: Array<Todo>;
 }
 
 export const App: React.FC = () => {
   const [todos, setTodos] = React.useState<Todo[]>([]);
+  const [showCongrats, setShowCongrats] = React.useState(false);
 
   React.useEffect(() => {
     (async () => {
@@ -80,7 +89,16 @@ export const App: React.FC = () => {
     }
 
     const updatedTodo = await response.json();
-    setTodos(todos.map(todo => (todo.id === todoId ? updatedTodo : todo)));
+
+    const updatedTodos = todos.map(todo =>
+      todo.id === todoId ? updatedTodo : todo,
+    );
+    setTodos(updatedTodos);
+
+    const allDone = updatedTodos.every(todo => todo.done);
+    if (allDone && !showCongrats) {
+      setShowCongrats(true);
+    }
   };
 
   return (
@@ -91,6 +109,11 @@ export const App: React.FC = () => {
           done={todos.filter(todo => todo.done).length}
         />
       </TodosHeader>
+      {showCongrats && todos.length > 0 && todos.every(todo => todo.done) && (
+        <CongratulationMessage>
+          Congratulations, you're all set! You've done everything on your list.
+        </CongratulationMessage>
+      )}
       <TodoInput onSubmit={createTodo} />
       <TodoList todos={todos} onTodoUpdate={updateTodo} />
       <TodosFooter>

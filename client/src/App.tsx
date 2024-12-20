@@ -23,12 +23,12 @@ export interface AppState {
 export const App: React.FC = () => {
   const [todos, setTodos] = React.useState<Todo[]>([]);
 
-  // React.useEffect(() => {
-  //   (async () => {
-  //     const response = await fetch('http://localhost:8000/todos');
-  //     setTodos(await response.json());
-  //   })();
-  // }, []);
+  React.useEffect(() => {
+    (async () => {
+      const response = await fetch('http://localhost:8000/todos');
+      setTodos(await response.json());
+    })();
+  }, []);
 
   const [online, setOnline] = React.useState<boolean>(false);
 
@@ -42,24 +42,24 @@ export const App: React.FC = () => {
   const createTodo: OnSubmit = async text => {
     const newTodo = {
       text,
-      done: false,
-      createdTimestamp: Date.now(),
+      // done: false,                   Removed as it's false as default
+      // createdTimestamp: Date.now(),  Removed as it's managed by server side
     };
 
-    // const response = await fetch('http://localhost:8000/todos', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(newTodo),
-    // });
-    // if (!response.ok) {
-    //   window.alert(
-    //     `Unexpected error ${response.status}: ${response.statusText}`
-    //   );
-    //   return text;
-    // }
-    // setTodos([...todos, await response.json()]);
+    const response = await fetch('http://localhost:8000/todos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTodo),
+    });
+    if (!response.ok) {
+      window.alert(
+        `Unexpected error ${response.status}: ${response.statusText}`,
+      );
+      return text;
+    }
+    setTodos([...todos, await response.json()]);
     return '';
   };
 

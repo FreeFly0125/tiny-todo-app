@@ -59,19 +59,45 @@ export const App: React.FC = () => {
       );
       return text;
     }
-    setTodos([...todos, await response.json()]);
+    setTodos([await response.json(), ...todos]);
     return '';
+  };
+
+  const updateTodo = async (todoId: string, updates: Partial<Todo>) => {
+    const response = await fetch(`http://localhost:8000/todos/${todoId}/done`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) {
+      window.alert(
+        `Unexpected error ${response.status}: ${response.statusText}`,
+      );
+      return;
+    }
+
+    const updatedTodo = await response.json();
+    setTodos(todos.map(todo => (todo.id === todoId ? updatedTodo : todo)));
   };
 
   return (
     <AppContainer className='App'>
       <TodosHeader online={online}>
-        <TodoStatusBar total={todos.length} />
+        <TodoStatusBar
+          total={todos.length}
+          done={todos.filter(todo => todo.done).length}
+        />
       </TodosHeader>
       <TodoInput onSubmit={createTodo} />
-      <TodoList todos={todos} />
+      <TodoList todos={todos} onTodoUpdate={updateTodo} />
       <TodosFooter>
-        <TodoStatusBar total={todos.length} />
+        <TodoStatusBar
+          total={todos.length}
+          done={todos.filter(todo => todo.done).length}
+        />
       </TodosFooter>
     </AppContainer>
   );

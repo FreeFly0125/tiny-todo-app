@@ -12,15 +12,28 @@ const TodoCheckbox = styled.input`
 
 export interface TodoItemProps {
   todo: Todo;
+  onUpdate: (todoId: string, updates: Partial<Todo>) => Promise<void>;
   className?: string;
 }
 
-const _TodoItem: React.FC<TodoItemProps> = ({todo, className}) => (
-  <li data-cy='TodoItem' className={className}>
-    <TodoCheckbox type='checkbox' checked={todo.done} />
-    <TodoText done={todo.done}>{todo.text}</TodoText>
-  </li>
-);
+const _TodoItem: React.FC<TodoItemProps> = ({todo, onUpdate, className}) => {
+  const handleCheckboxChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    await onUpdate(todo.id.toString(), {done: e.target.checked});
+  };
+
+  return (
+    <li data-cy='TodoItem' className={className}>
+      <TodoCheckbox
+        type='checkbox'
+        checked={todo.done}
+        onChange={handleCheckboxChange}
+      />
+      <TodoText done={todo.done}>{todo.text}</TodoText>
+    </li>
+  );
+};
 
 export const TodoItem = styled(_TodoItem)`
   display: flex;
